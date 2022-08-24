@@ -98,8 +98,7 @@ class elfio
     }
 
 //------------------------------------------------------------------------------
-    // oazizi: Added an option to skip segments, as a memory saving feature.
-    bool load( const std::string& file_name, bool skip_segments = false )
+    bool load( const std::string& file_name )
     {
         std::ifstream stream;
         stream.open( file_name.c_str(), std::ios::in | std::ios::binary );
@@ -107,11 +106,25 @@ class elfio
             return false;
         }
 
-        return load(stream, skip_segments);
+        return load(stream);
     }
 
 //------------------------------------------------------------------------------
-    bool load( std::istream &stream, bool skip_segments )
+    // oazizi: A version of load that is more memory-friendly, but skipping segments.
+    bool load_header_and_sections( const std::string& file_name )
+    {
+        std::ifstream stream;
+        stream.open( file_name.c_str(), std::ios::in | std::ios::binary );
+        if ( !stream ) {
+            return false;
+        }
+
+        return load(stream, /* skip_segments */ true);
+    }
+
+//------------------------------------------------------------------------------
+    // oazizi: Added an option to skip segments, as a memory saving feature.
+    bool load( std::istream &stream, bool skip_segments = false )
     {
         clean();
 
