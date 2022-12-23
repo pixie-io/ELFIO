@@ -119,12 +119,12 @@ class elfio
             return false;
         }
 
-        return load(stream, /* skip_segments */ true);
+        return load(stream, /* skip_segments */ false, /* only_load_segment_headers */ true);
     }
 
 //------------------------------------------------------------------------------
     // oazizi: Added an option to skip segments, as a memory saving feature.
-    bool load( std::istream &stream, bool skip_segments = false )
+    bool load( std::istream &stream, bool skip_segments = false, bool only_load_segment_headers = false)
     {
         clean();
 
@@ -159,7 +159,7 @@ class elfio
         if (skip_segments) {
           return true;
         }
-        return load_segments( stream );
+        return load_segments( stream , only_load_segment_headers );
     }
 
 //------------------------------------------------------------------------------
@@ -457,7 +457,7 @@ class elfio
     }
 
 //------------------------------------------------------------------------------
-    bool load_segments( std::istream& stream )
+    bool load_segments( std::istream& stream , bool only_load_headers = false)
     {
         Elf_Half  entry_size = header->get_segment_entry_size();
         Elf_Half  num        = header->get_segments_num();
@@ -477,7 +477,7 @@ class elfio
                 return false;
             }
 
-            seg->load( stream, (std::streamoff)offset + i * entry_size );
+            seg->load( stream, (std::streamoff)offset + i * entry_size , only_load_headers );
             seg->set_index( i );
 
             // Add sections to the segments (similar to readelfs algorithm)
